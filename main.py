@@ -27,8 +27,10 @@ class_names = train_ds.class_names
 print("Classes:", class_names)
 
 # Performance config
-AUTOTUNE = tf.data.AUTOTUNE
-train_ds = train_ds.cache().shuffle(1000).prefetch(buffer_size=AUTOTUNE)
+AUTOTUNE = tf.data.AUTOTUNE # Automatically tune performance parameters  
+#shuffle(1000): Randomizes the order of training samples to prevent overfitting.
+train_ds = train_ds.cache().shuffle(1000).prefetch(buffer_size=AUTOTUNE) # cache ()Stores data in memory after the first load for faster training.
+#prefetch(): Lets the model train and load data at the same time, improving speed.
 val_ds = val_ds.cache().prefetch(buffer_size=AUTOTUNE)
 
 # Build model
