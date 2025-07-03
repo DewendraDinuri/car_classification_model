@@ -1,4 +1,4 @@
-import tensorflow as tf
+import tensorflow as tf #Main library for building and training deep learning models.
 from tensorflow.keras.preprocessing import image_dataset_from_directory
 import os
 
