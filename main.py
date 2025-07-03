@@ -1,11 +1,13 @@
 import tensorflow as tf #Main library for building and training deep learning models.
-from tensorflow.keras.preprocessing import image_dataset_from_directory
-import os
+from tensorflow.keras.preprocessing import image_dataset_from_directory # automatically loads images from directories and prepares them for training.
+import numpy as np # for numerical operations, especially with arrays.
+import os # Used to work with directory paths (cross-platform).
+
 
 # Paths
 base_dir = 'dataset'
-train_dir = os.path.join(base_dir, 'training')
-val_dir = os.path.join(base_dir, 'validation')
+train_dir = os.path.join(base_dir, 'training') # Directory containing training images
+val_dir = os.path.join(base_dir, 'validation') # Directory containing validation images
 
 # Load datasets
 train_ds = image_dataset_from_directory(
@@ -25,8 +27,10 @@ class_names = train_ds.class_names
 print("Classes:", class_names)
 
 # Performance config
-AUTOTUNE = tf.data.AUTOTUNE
-train_ds = train_ds.cache().shuffle(1000).prefetch(buffer_size=AUTOTUNE)
+AUTOTUNE = tf.data.AUTOTUNE # Automatically tune performance parameters  
+#shuffle(1000): Randomizes the order of training samples to prevent overfitting.
+train_ds = train_ds.cache().shuffle(1000).prefetch(buffer_size=AUTOTUNE) # cache ()Stores data in memory after the first load for faster training.
+#prefetch(): Lets the model train and load data at the same time, improving speed.
 val_ds = val_ds.cache().prefetch(buffer_size=AUTOTUNE)
 
 # Build model
