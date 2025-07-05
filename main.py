@@ -87,7 +87,7 @@ history = model.fit(
 # Save the model
 # --------------------------
 os.makedirs("model", exist_ok=True)
-model.save("model/car_damage_classifier.keras")
+model.save("model/car_damage_classifier.h5")
 print("✅ Model saved to: model/car_damage_classifier.h5")
 
 # --------------------------
