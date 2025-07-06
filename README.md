@@ -70,6 +70,9 @@ Pandas (if used for data handling)
 Matplotlib (optional, for visualizations)
 
 
+<img width="1198" alt="image" src="https://github.com/user-attachments/assets/5f2b1760-4afd-4937-97cb-4ce822503ae5" />
+
+
 Author
 Dinuri Dewendra
 GitHub: @dinuridewendra
