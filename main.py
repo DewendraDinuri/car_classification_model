@@ -3,6 +3,10 @@ from tensorflow.keras import layers
 from tensorflow.keras.preprocessing import image_dataset_from_directory
 import os
 import matplotlib.pyplot as plt
+from datetime import datetime
+import numpy as np
+from sklearn.metrics import classification_report, confusion_matrix
+import seaborn as sns
 
 # --------------------------
 # Paths
@@ -26,9 +30,6 @@ val_ds = image_dataset_from_directory(
     batch_size=32
 )
 
-# --------------------------
-# Get class names
-# --------------------------
 class_names = train_ds.class_names
 print("Detected classes:", class_names)
 
@@ -40,7 +41,7 @@ train_ds = train_ds.cache().shuffle(1000).prefetch(buffer_size=AUTOTUNE)
 val_ds = val_ds.cache().prefetch(buffer_size=AUTOTUNE)
 
 # --------------------------
-# Data augmentation layer
+# Data augmentation
 # --------------------------
 data_augmentation = tf.keras.Sequential([
     layers.RandomFlip("horizontal"),
@@ -49,7 +50,7 @@ data_augmentation = tf.keras.Sequential([
 ])
 
 # --------------------------
-# Build the model
+# Model
 # --------------------------
 model = tf.keras.Sequential([
     data_augmentation,
@@ -62,12 +63,9 @@ model = tf.keras.Sequential([
     layers.MaxPooling2D(),
     layers.Flatten(),
     layers.Dense(128, activation='relu'),
-    layers.Dense(len(class_names))  # output layer with number of classes
+    layers.Dense(len(class_names))  # Output layer
 ])
 
-# --------------------------
-# Compile the model
-# --------------------------
 model.compile(
     optimizer='adam',
     loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
@@ -75,23 +73,35 @@ model.compile(
 )
 
 # --------------------------
-# Train the model
+# Early stopping
+# --------------------------
+early_stop = tf.keras.callbacks.EarlyStopping(
+    monitor='val_loss',
+    patience=3,
+    restore_best_weights=True
+)
+
+# --------------------------
+# Train
 # --------------------------
 history = model.fit(
     train_ds,
     validation_data=val_ds,
-    epochs=10
+    epochs=50,
+    callbacks=[early_stop]
 )
 
 # --------------------------
-# Save the model
+# Save model with timestamp
 # --------------------------
 os.makedirs("model", exist_ok=True)
-model.save("model/car_damage_classifier.h5")
-print("✅ Model saved to: model/car_damage_classifier.h5")
+timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+model_path = f"model/car_damage_classifier_{timestamp}.keras"
+model.save(model_path)
+print(f"✅ Model saved at: {model_path}")
 
 # --------------------------
-# Plot Accuracy and Loss
+# Accuracy & loss plots
 # --------------------------
 acc = history.history['accuracy']
 val_acc = history.history['val_accuracy']
@@ -103,15 +113,42 @@ plt.figure(figsize=(12, 4))
 
 plt.subplot(1, 2, 1)
 plt.plot(epochs_range, acc, label='Train Accuracy')
-plt.plot(epochs_range, val_acc, label='Validation Accuracy')
+plt.plot(epochs_range, val_acc, label='Val Accuracy')
 plt.legend(loc='lower right')
-plt.title('Training and Validation Accuracy')
+plt.title('Training vs Validation Accuracy')
 
 plt.subplot(1, 2, 2)
 plt.plot(epochs_range, loss, label='Train Loss')
-plt.plot(epochs_range, val_loss, label='Validation Loss')
+plt.plot(epochs_range, val_loss, label='Val Loss')
 plt.legend(loc='upper right')
-plt.title('Training and Validation Loss')
+plt.title('Training vs Validation Loss')
 
 plt.tight_layout()
 plt.show()
+
+# --------------------------
+# Evaluation: confusion matrix & report
+# --------------------------
+print("\n🔍 Evaluating on validation set...")
+
+# Get true and predicted labels
+y_true = []
+y_pred = []
+
+for images, labels in val_ds:
+    preds = model.predict(images)
+    y_true.extend(labels.numpy())
+    y_pred.extend(np.argmax(preds, axis=1))
+
+# Confusion matrix
+cm = confusion_matrix(y_true, y_pred)
+plt.figure(figsize=(6, 5))
+sns.heatmap(cm, annot=True, fmt='d', xticklabels=class_names, yticklabels=class_names, cmap="Blues")
+plt.xlabel("Predicted")
+plt.ylabel("Actual")
+plt.title("Confusion Matrix")
+plt.show()
+
+# Classification report
+print("\n📄 Classification Report:")
+print(classification_report(y_true, y_pred, target_names=class_names))
