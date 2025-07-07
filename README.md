@@ -71,6 +71,8 @@ Matplotlib (optional, for visualizations)
 
 
 <img width="1198" alt="image" src="https://github.com/user-attachments/assets/5f2b1760-4afd-4937-97cb-4ce822503ae5" />
+<img width="1245" alt="image" src="https://github.com/user-attachments/assets/dd92dc9d-36e1-4376-bcdd-02f35ff04633" />
+
 
 
 Author
