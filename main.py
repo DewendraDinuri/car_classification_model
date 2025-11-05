@@ -98,7 +98,7 @@ os.makedirs("model", exist_ok=True)
 timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
 model_path = f"model/car_damage_classifier_{timestamp}.keras"
 model.save(model_path)
-print(f"✅ Model saved at: {model_path}")
+print(f" Model saved at: {model_path}")
 
 # --------------------------
 # Accuracy & loss plots
