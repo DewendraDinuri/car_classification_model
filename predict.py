@@ -1,26 +1,26 @@
 import tensorflow as tf
 import numpy as np
-import os
 from tensorflow.keras.preprocessing import image
+import sys
 
 # Load model
-model = tf.keras.models.load_model('model/car_damage_classifier.h5')
+model = tf.keras.models.load_model("model/car_damage_classifier_YYYYMMDD-HHMMSS.keras")  # replace with your saved model name
 
-# Define class names (same order as training)
+# Define class names
 class_names = ['01-minor', '02-moderate', '03-severe']
 
-# Load and preprocess image
-img_path = 'test_images/sample.jpg'  # Replace with your test image path
+# Path to test image
+img_path = 'test_images/car1.jpg'  # replace with your image path
+
+# Preprocess the image
 img = image.load_img(img_path, target_size=(180, 180))
 img_array = image.img_to_array(img)
-img_array = tf.expand_dims(img_array, 0)  # Make it batch of 1
+img_array = tf.expand_dims(img_array, 0)  # make it a batch
 
 # Predict
 predictions = model.predict(img_array)
 score = tf.nn.softmax(predictions[0])
-
-# Output result
-predicted_label = class_names[np.argmax(score)]
+predicted_class = class_names[np.argmax(score)]
 confidence = 100 * np.max(score)
 
-print(f"Predicted: {predicted_label} ({confidence:.2f}% confidence)")
+print(f"Prediction: {predicted_class} ({confidence:.2f}% confidence)")
